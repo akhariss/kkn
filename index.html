@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Integrasi Apps Script</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      color: #333;
+    }
+    #output {
+      margin-top: 20px;
+      padding: 15px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      padding: 10px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>Demo Integrasi Google Apps Script</h1>
+  <p>Klik tombol di bawah untuk mengambil data dari Web App Apps Script:</p>
+  <button onclick="getData()">Ambil Data</button>
+
+  <div id="output">Hasil akan muncul di sini...</div>
+
+  <script>
+    async function getData() {
+      const url = "https://script.google.com/macros/s/AKfycbxltJXPhql8r-zBrApW_VlvFQb9vgPWdd8PyZ9OguZ7KZfsi5gZ4DB3k7Omgq7Gs4EKig/exec";
+      try {
+        const response = await fetch(url);
+        const data = await response.text(); // bisa juga .json() jika output JSON
+        document.getElementById("output").innerText = data;
+      } catch (error) {
+        document.getElementById("output").innerText = "Terjadi kesalahan: " + error;
+      }
+    }
+  </script>
+</body>
+</html>
