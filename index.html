@@ -1,55 +1,406 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Integrasi Apps Script</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 40px;
-      background-color: #f9f9f9;
-    }
-    h1 {
-      color: #333;
-    }
-    #output {
-      margin-top: 20px;
-      padding: 15px;
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-    button {
-      padding: 10px 20px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #0056b3;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KKN Intelligence Brief — Desa Sidamulya</title>
+<style>
+  :root{
+    --navy:#0f2a4a;
+    --navy-light:#1c3f68;
+    --grey-bg:#f5f6f8;
+    --grey-line:#e2e5ea;
+    --accent:#4a90d9;
+    --text:#222831;
+    --muted:#6b7280;
+    --good:#1a7f4e;
+    --warn:#b8860b;
+    --risk:#b3261e;
+    --card-shadow: 0 1px 3px rgba(15,42,74,0.08), 0 1px 2px rgba(15,42,74,0.06);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:#ffffff; color:var(--text); line-height:1.6;
+  }
+  .layout{display:flex; max-width:1300px; margin:0 auto;}
+  nav{
+    width:230px; flex-shrink:0; position:sticky; top:0; align-self:flex-start;
+    height:100vh; overflow-y:auto; padding:28px 14px; border-right:1px solid var(--grey-line);
+  }
+  nav .brand{font-weight:700; color:var(--navy); font-size:14px; letter-spacing:.04em; margin-bottom:20px; padding:0 10px;}
+  nav a{display:block; padding:8px 10px; font-size:13px; color:var(--muted); text-decoration:none; border-radius:6px; margin-bottom:2px;}
+  nav a:hover{background:var(--grey-bg); color:var(--navy);}
+  main{flex:1; padding:40px 48px 100px;}
+  header.cover{margin-bottom:48px;}
+  header.cover .kicker{color:var(--accent); font-weight:600; font-size:13px; letter-spacing:.08em; text-transform:uppercase;}
+  header.cover h1{color:var(--navy); font-size:34px; margin:8px 0 6px; line-height:1.2;}
+  header.cover p.sub{color:var(--muted); font-size:15px; max-width:640px;}
+  section{margin-bottom:52px; scroll-margin-top:20px;}
+  h2{color:var(--navy); font-size:21px; border-bottom:2px solid var(--grey-line); padding-bottom:10px; margin-bottom:20px;}
+  h3{color:var(--navy-light); font-size:16px; margin:22px 0 10px;}
+  .grid{display:grid; gap:16px;}
+  .grid.cols-2{grid-template-columns:1fr 1fr;}
+  .grid.cols-3{grid-template-columns:repeat(3,1fr);}
+  .grid.cols-4{grid-template-columns:repeat(4,1fr);}
+  .card{
+    background:#fff; border:1px solid var(--grey-line); border-radius:12px; padding:18px 20px;
+    box-shadow:var(--card-shadow);
+  }
+  .stat{background:var(--grey-bg); border-radius:12px; padding:16px 18px;}
+  .stat .num{font-size:26px; font-weight:700; color:var(--navy);}
+  .stat .label{font-size:12.5px; color:var(--muted); margin-top:2px;}
+  table{width:100%; border-collapse:collapse; font-size:13.5px; margin:10px 0;}
+  th,td{text-align:left; padding:9px 10px; border-bottom:1px solid var(--grey-line);}
+  th{color:var(--navy); font-size:12px; text-transform:uppercase; letter-spacing:.03em; background:var(--grey-bg);}
+  tr:hover td{background:#fafbfc;}
+  .badge{display:inline-block; font-size:11px; font-weight:600; padding:3px 9px; border-radius:999px; margin-left:6px;}
+  .badge.validate{background:#fff6df; color:var(--warn);}
+  .badge.risk{background:#fdeceb; color:var(--risk);}
+  .badge.good{background:#e8f6ee; color:var(--good);}
+  .callout{border-left:4px solid var(--accent); background:#f2f7fd; padding:12px 16px; border-radius:0 8px 8px 0; font-size:14px; margin:14px 0;}
+  .callout.warn{border-color:var(--warn); background:#fffaf0;}
+  .callout.risk{border-color:var(--risk); background:#fef4f3;}
+  ul{padding-left:20px;} li{margin-bottom:5px;}
+  .src{font-size:11.5px; color:var(--muted); margin-top:6px; font-style:italic;}
+  .priority-list{display:flex; flex-direction:column; gap:14px;}
+  .priority-item{border:1px solid var(--grey-line); border-radius:12px; padding:16px 20px; box-shadow:var(--card-shadow);}
+  .priority-item .rank{display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%; background:var(--navy); color:#fff; font-size:13px; font-weight:700; margin-right:8px;}
+  .conf{font-size:11.5px; padding:2px 8px; border-radius:6px; background:var(--grey-bg); color:var(--navy); font-weight:600;}
+  footer{color:var(--muted); font-size:12px; border-top:1px solid var(--grey-line); padding-top:20px; margin-top:60px;}
+  .timeline{display:flex; flex-direction:column; gap:0; border-left:2px solid var(--grey-line); margin-left:8px; padding-left:22px;}
+  .tl-item{position:relative; padding-bottom:20px;}
+  .tl-item::before{content:""; position:absolute; left:-28px; top:4px; width:10px; height:10px; border-radius:50%; background:var(--accent);}
+  .tl-item .date{font-weight:700; color:var(--navy); font-size:13.5px;}
+  .tl-item .desc{font-size:13.5px; color:var(--text);}
+  @media(max-width:900px){
+    nav{display:none;}
+    main{padding:24px;}
+    .grid.cols-2,.grid.cols-3,.grid.cols-4{grid-template-columns:1fr;}
+  }
+</style>
 </head>
 <body>
-  <h1>Demo Integrasi Google Apps Script</h1>
-  <p>Klik tombol di bawah untuk mengambil data dari Web App Apps Script:</p>
-  <button onclick="getData()">Ambil Data</button>
+<div class="layout">
+<nav>
+  <div class="brand">KKN INTELLIGENCE BRIEF</div>
+  <a href="#ringkasan">📌 Ringkasan Cepat</a>
+  <a href="#panduan">📖 Panduan KKN 2026</a>
+  <a href="#profil">🏡 Profil Sidamulya</a>
+  <a href="#kecamatan">📊 Konteks Kecamatan</a>
+  <a href="#insight">🔍 Insight</a>
+  <a href="#masalah">⚠ Masalah Prioritas</a>
+  <a href="#gform">📱 Google Form To Know</a>
+  <a href="#wawancara">🎙️ Wawancara Tokoh</a>
+  <a href="#rekomendasi">💡 Rekomendasi Program</a>
+  <a href="#literasi">📚 Proker Literasi</a>
+  <a href="#checklist">📋 Checklist Survey</a>
+  <a href="#gap">🚩 Data Belum Ada</a>
+  <a href="#rapat">📝 Saran Rapat</a>
+  <a href="#referensi">📚 Referensi</a>
+</nav>
+<main>
+  <header class="cover">
+    <div class="kicker">Briefing Book · Pra-KKN 2026</div>
+    <h1>Desa Sidamulya, Kec. Astanajapura, Kab. Cirebon</h1>
+    <p class="sub">Disusun dari 3 buku BPS "Kecamatan Astanajapura Dalam Angka" (2023, 2024, 2025) dan materi pembekalan DPL KKN 2026. Dokumen ini adalah alat bantu pra-survei — semua yang ditandai <span class="badge validate">🟡 Perlu Validasi</span> wajib dicek langsung di lapangan.</p>
+  </header>
 
-  <div id="output">Hasil akan muncul di sini...</div>
+  <section id="ringkasan">
+    <h2>📌 Ringkasan Cepat</h2>
+    <div class="grid cols-4">
+      <div class="stat"><div class="num">6.337</div><div class="label">Penduduk Sidamulya (2023)</div></div>
+      <div class="stat"><div class="num">4.801/km²</div><div class="label">Kepadatan — terpadat ke-2 di kecamatan</div></div>
+      <div class="stat"><div class="num">1,32 km²</div><div class="label">Luas wilayah (4,85% dari kecamatan)</div></div>
+      <div class="stat"><div class="num">12 kasus</div><div class="label">Gizi kurang tercatat, 2023</div></div>
+    </div>
+    <div class="callout">
+      Sidamulya adalah desa kecil secara wilayah tapi padat penduduk, dengan riwayat menjadi perhatian isu gizi anak/stunting (lihat konteks 2022 di bawah). Ini kemungkinan besar masih jadi isu relevan untuk tema kesehatan/gizi KKN — tapi <b>harus divalidasi ulang</b> karena data terakhir yang tersedia adalah 2023.
+    </div>
+  </section>
 
-  <script>
-    async function getData() {
-      const url = "https://script.google.com/macros/s/AKfycbxltJXPhql8r-zBrApW_VlvFQb9vgPWdd8PyZ9OguZ7KZfsi5gZ4DB3k7Omgq7Gs4EKig/exec";
-      try {
-        const response = await fetch(url);
-        const data = await response.text(); // bisa juga .json() jika output JSON
-        document.getElementById("output").innerText = data;
-      } catch (error) {
-        document.getElementById("output").innerText = "Terjadi kesalahan: " + error;
-      }
-    }
-  </script>
+  <section id="panduan">
+    <h2>📖 Panduan KKN 2026 (dari materi pembekalan DPL)</h2>
+    <p style="color:var(--muted); font-size:13.5px;">⚠️ Catatan: dua blok teks panjang yang ikut ter-upload ("AI KKN Copilot" / "Output Preferences") <b>bukan bagian dari Panduan KKN</b> — isinya adalah template instruksi buatan pengguna, bukan dokumen resmi kampus/BPS, dan tidak menyebut nama desa atau data apa pun. Bagian ini disusun murni dari isi PPTX yang benar-benar berisi materi pembekalan.</p>
+
+    <h3>Metodologi wajib: Siklus PAR (Participatory Action Research)</h3>
+    <table>
+      <tr><th>Tahap</th><th>Inti Kegiatan</th></tr>
+      <tr><td><b>1. To Know</b></td><td>Observasi partisipatif 1–3 hari, wawancara mendalam (pertanyaan terbuka), FGD 6–10 warga beragam.</td></tr>
+      <tr><td><b>2. To Understand</b></td><td>Pemetaan/pohon masalah, analisis pemangku kepentingan, kalender musim, teknik "5 Mengapa" — cari akar masalah, bukan gejala.</td></tr>
+      <tr><td><b>3. Action Plan</b></td><td>Disusun bersama warga (bukan untuk warga); satu tema–satu desa–satu dampak terukur; format Siapa→Apa→Kapan→Indikator; divalidasi ulang ke warga.</td></tr>
+      <tr><td><b>4. Action</b></td><td>Mahasiswa jadi fasilitator, warga terlibat aktif; DPL kunjungan minimal 4x; dokumentasi digital tiap kegiatan.</td></tr>
+      <tr><td><b>5. Evaluation</b></td><td>Ukur dampak vs indikator, FGD refleksi bersama warga, jadi bahan laporan & video dokumenter.</td></tr>
+    </table>
+    <div class="src">Sumber: PPTX pembekalan DPL, Blok 2 (slide 15–18)</div>
+
+    <h3>Jadwal KKN 2026</h3>
+    <div class="timeline">
+      <div class="tl-item"><div class="date">22–26 Juni</div><div class="desc">Pembekalan mahasiswa (≥60% wajib luring; asesmen akhir wajib luring)</div></div>
+      <div class="tl-item"><div class="date">Sebelum 13 Juli</div><div class="desc">Survei lokasi & penetapan pemondokan — <b>wajib terpisah gender</b>, dilaporkan ke DPL/LP2M</div></div>
+      <div class="tl-item"><div class="date">13 Juli</div><div class="desc">Penyerahan resmi mahasiswa di Kantor Pemdes; mulai tahap To Know hari itu juga</div></div>
+      <div class="tl-item"><div class="date">13 Jul – 21 Agt (40 hari)</div><div class="desc">Minggu 1: To Know → To Understand. Minggu 2–4: Action Plan + Action. Minggu 5–6: Action + Evaluasi. DPL kunjungan minimal 4x.</div></div>
+      <div class="tl-item"><div class="date">1–10 Sep</div><div class="desc">Pengumpulan laporan akhir + video dokumenter</div></div>
+      <div class="tl-item"><div class="date">25 Sep</div><div class="desc">Sidang kelulusan</div></div>
+    </div>
+    <div class="src">Sumber: PPTX pembekalan DPL, Blok 6 (slide 38–45)</div>
+
+    <h3>Yang wajib dipatuhi</h3>
+    <div class="grid cols-2">
+      <div class="card">
+        <b>✅ Program wajib mengikuti</b>
+        <ul>
+          <li>Program disusun <i>bersama</i> warga lewat siklus PAR — bukan program siap-pakai dari kampus.</li>
+          <li>Form survei maksimal 10 pertanyaan, bahasa sederhana, +1 pertanyaan terbuka wajib: "apa yang ingin diubah dalam 1 tahun ke depan?"</li>
+          <li>3 laporan wajib: harian/mingguan, laporan akhir (naskah akademik), video dokumenter (7–10 menit, warga sebagai pemeran utama).</li>
+        </ul>
+      </div>
+      <div class="card">
+        <b>⚠ Hal yang sering terlewat</b>
+        <ul>
+          <li>Melompat ke "solusi" sebelum tahap To Understand selesai (kasus Liberia jadi contoh peringatan di materi ini).</li>
+          <li>Upload foto/video desa tanpa izin DPL & tokoh desa.</li>
+          <li>Mahasiswa lapor langsung ke DPL/LP2M, padahal alurnya: Mahasiswa → Ketua Kelompok → DPL → Koordinator DPL → LP2M.</li>
+          <li>Pemondokan tidak terpisah gender — pelanggaran ini berdampak ke <b>nilai dan status kelulusan</b>.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout warn">🟡 Data belum ditemukan: materi "Blok 5 — Pendalaman Tematik" direferensikan berkali-kali (mis. sebagai dasar 3 pertanyaan kunci wawancara) tapi kontennya tidak ada di file yang di-upload. Ini kemungkinan menentukan apakah ada tema wajib khusus (literasi, kesehatan, dsb) — <b>konfirmasi ke DPL/LP2M</b>, jangan berasumsi tema tertentu.</div>
+    <div class="src">Sumber: PPTX pembekalan DPL, Blok 4 (etika, slide 33–34), Blok 6 (koordinasi & penilaian, slide 42–44)</div>
+  </section>
+
+  <section id="profil">
+    <h2>🏡 Profil Desa Sidamulya</h2>
+    <div class="grid cols-3">
+      <div class="card"><b>Geografi</b><br>Luas 1,32 km² (4,85% luas kecamatan) · Jarak ke ibukota kecamatan 1,9 km · ke ibukota kabupaten 24,0 km · Koordinat kantor desa 6,81°S 108,61°E<div class="src">Sumber: BPS Astanajapura Dalam Angka 2024, Tabel 1.1–1.4</div></div>
+      <div class="card"><b>Demografi</b><br>6.337 jiwa (2023): 3.266 laki-laki, 3.071 perempuan · Sex ratio 106 · Kepadatan 4.801 jiwa/km² (2 tertinggi di kecamatan) · Tren naik dari 6.254 jiwa (2022)<div class="src">Sumber: BPS 2023 & 2024, Tabel 3.1</div></div>
+      <div class="card"><b>Wilayah Administratif</b><br>5 dusun (Maja 1, Maja 2, Kiwiyar, Kiliyem/Kiganung) · 4 RW · 18 RT<div class="src">Sumber: BPS 2024, Tabel 2.1.1–2.1.2</div></div>
+      <div class="card"><b>Kesehatan/Gizi</b><br>12 kasus gizi kurang (2023) — di atas rata-rata desa lain · 0 kasus gizi buruk (2023)<span class="badge validate">🟡 Cek terkini</span><div class="src">Sumber: BPS 2024, Tabel 4.2.2–4.2.3</div></div>
+      <div class="card"><b>Sosial Keagamaan</b><br>2 masjid, 6 mushola — jumlah masjid per kapita termasuk paling rendah dibanding desa lain di kecamatan<span class="badge validate">🟡 Perlu Validasi</span><div class="src">Sumber: BPS 2024, Tabel 4.3.1</div></div>
+      <div class="card"><b>Konteks Historis (2022)</b><br>Per Feb 2022: 26 balita sangat pendek, 122 balita pendek (TB/U). Kab. Cirebon berstatus Lokus Stunting nasional. Sidamulya jadi lokasi KKN-T IPB dengan program SiHanTing, Silase, P2L, PUMO (kelor).<span class="badge risk">Program berbeda/tahun berbeda</span><div class="src">Sumber: artikel Kompasiana KKN-T IPB 2022 — bukan data BPS, tidak bisa dibandingkan langsung dengan angka gizi 2023</div></div>
+    </div>
+  </section>
+
+  <section id="kecamatan">
+    <h2>📊 Konteks Kecamatan Astanajapura (untuk pembanding)</h2>
+    <div class="callout">Semua angka di bagian ini adalah level <b>kecamatan</b>, bukan spesifik Desa Sidamulya — dipakai sebagai konteks/pembanding, bukan gambaran langsung kondisi desa. 🟡 Data Kecamatan</div>
+    <table>
+      <tr><th>Desa</th><th>Penduduk 2023</th><th>Kepadatan/km²</th><th>Gizi kurang 2023</th></tr>
+      <tr><td>Munjul</td><td>10.457</td><td>2.569</td><td>10</td></tr>
+      <tr><td><b>Sidamulya</b></td><td><b>6.337</b></td><td><b>4.801</b></td><td><b>12</b></td></tr>
+      <tr><td>Mertapada Kulon</td><td>6.022</td><td>5.282</td><td>6</td></tr>
+      <tr><td>Mertapada Wetan</td><td>9.515</td><td>4.467</td><td>21</td></tr>
+      <tr><td>Buntet</td><td>8.586</td><td>3.216</td><td>19</td></tr>
+      <tr><td>Kanci Kulon</td><td>7.359</td><td>947</td><td>7</td></tr>
+      <tr><td>Kanci</td><td>6.979</td><td>1.917</td><td>28</td></tr>
+      <tr><td>Astanajapura</td><td>8.534</td><td>3.678</td><td>1</td></tr>
+      <tr><td>Kendal</td><td>4.779</td><td>4.156</td><td>-</td></tr>
+      <tr><td>Japura Kidul</td><td>8.904</td><td>3.757</td><td>1</td></tr>
+      <tr><td>Japurabakti</td><td>9.572</td><td>3.585</td><td>2</td></tr>
+      <tr><td><i>Kecamatan (total)</i></td><td><i>87.044</i></td><td><i>3.198 (rata-rata)</i></td><td><i>-</i></td></tr>
+    </table>
+    <div class="src">Sumber: BPS Astanajapura Dalam Angka 2024, Tabel 3.1 & 4.2.2</div>
+
+    <h3>Pertanian & peternakan (level kecamatan, belum per-desa)</h3>
+    <ul>
+      <li>Padi sawah: luas panen 1.550 ha, produksi 12.008 ton GKP (2023) — naik dari 1.395 ha/10.814 ton (2022).</li>
+      <li>Ternak besar/kecil 2023: domba 9.716 ekor (dominan), kambing 152, kerbau 67, sapi potong 44.</li>
+      <li>Unggas 2023: ayam kampung 51.947, ayam pedaging 50.000.</li>
+    </ul>
+    <div class="src">Sumber: BPS Astanajapura Dalam Angka 2024, Tabel 5.3.2–5.4.2</div>
+    <div class="callout warn">🟡 Data pertanian/peternakan tidak dipecah per desa di ketiga buku BPS ini — kontribusi riil Sidamulya terhadap angka ini <b>tidak diketahui</b> dan wajib digali saat survei ke kelompok tani/ternak setempat.</div>
+
+    <h3>Catatan tentang buku 2025</h3>
+    <p style="font-size:13.5px;">Buku BPS 2025 punya struktur lebih lengkap (menambah bab Perdagangan) tapi hampir seluruh tabel datanya disajikan sebagai <b>gambar/infografis</b>, bukan teks yang bisa diekstrak — sehingga sebagian besar angka di brief ini bersumber dari edisi 2023–2024. Jika butuh angka 2025 yang presisi, sebaiknya buka langsung file PDF-nya secara visual per halaman.</p>
+  </section>
+
+  <section id="insight">
+    <h2>🔍 Insight Penting</h2>
+    <div class="grid cols-2">
+      <div class="card"><b>1. Kepadatan tinggi + luas kecil → tekanan lahan</b><br>Sidamulya jadi desa terpadat ke-2 (4.801/km²) dengan luas cuma 1,32 km². Ini biasanya berarti ruang pertanian terbatas per kapita, sehingga mata pencaharian kemungkinan lebih beragam (bukan murni tani) — <span class="badge validate">🟡 perlu konfirmasi mata pencaharian dominan saat survei</span>.<div class="src">Confidence: Sedang — berdasar korelasi kepadatan vs luas, bukan data pekerjaan langsung</div></div>
+      <div class="card"><b>2. Gizi kurang di atas rata-rata desa lain</b><br>12 kasus (2023) lebih tinggi dari Munjul (10), Mertapada Kulon (6), Kanci Kulon (7), tapi masih di bawah Kanci (28) dan Mertapada Wetan (21). Sidamulya bukan yang terburuk, tapi konsisten dengan riwayat stunting 2022.<div class="src">Confidence: Sedang</div></div>
+      <div class="card"><b>3. Fasilitas ibadah relatif sedikit</b><br>2 masjid untuk >6.300 penduduk — rasio terendah dibanding desa sebanding. Bisa jadi indikasi kebutuhan ruang publik/komunitas, atau sekadar pola permukiman terpusat. <span class="badge validate">🟡 perlu cek langsung</span>, jangan langsung disimpulkan sebagai masalah.<div class="src">Confidence: Rendah — satu indikator saja, belum tentu bermakna sosial</div></div>
+      <div class="card"><b>4. Riwayat kelembagaan sudah ada</b><br>Artikel 2022 menyebut Kelompok Wanita Tani "Sida Kencana", Kelompok Ternak, kader Posyandu (5 posyandu: Mawar 1&2, Melati 1, Anggrek 1&2), dan UMKM binaan Puskesmas ("Kake Fatmala"). Kelembagaan ini <i>mungkin</i> masih aktif dan bisa jadi mitra langsung — <span class="badge validate">🟡 wajib dikonfirmasi masih berjalan atau tidak</span>.<div class="src">Sumber: Kompasiana 2022 — perlu verifikasi kondisi 2026</div></div>
+    </div>
+  </section>
+
+  <section id="masalah">
+    <h2>⚠ Masalah Potensial (berdasar data yang ada — bukan hasil survei lapangan)</h2>
+    <div class="priority-list">
+      <div class="priority-item">
+        <span class="rank">1</span><b>Gizi anak / potensi stunting berlanjut</b> <span class="conf">Confidence: Sedang</span>
+        <p style="margin:8px 0 4px;">Data pendukung: 12 kasus gizi kurang (BPS 2023); riwayat 26 balita sangat pendek + 122 pendek (Feb 2022, sumber non-BPS). Penyebab pasti (pola asuh, akses gizi, sanitasi) belum diketahui dari data yang ada — <span class="badge validate">🟡 Perlu Validasi Lapangan</span> ke bidan desa & kader posyandu.</p>
+      </div>
+      <div class="priority-item">
+        <span class="rank">2</span><b>Keterbatasan lahan vs kepadatan penduduk</b> <span class="conf">Confidence: Sedang</span>
+        <p style="margin:8px 0 4px;">1,32 km² untuk 6.337 jiwa. Implikasi terhadap mata pencaharian, sanitasi, dan ruang sosial belum terkonfirmasi — perlu digali di tahap To Know (observasi + FGD).</p>
+      </div>
+      <div class="priority-item">
+        <span class="rank">3</span><b>Data desa yang sangat terbatas di luar geografi/demografi/gizi</b> <span class="conf">Confidence: Tinggi (soal ketiadaan data)</span>
+        <p style="margin:8px 0 4px;">Tidak ada data BPS per-desa untuk ekonomi, UMKM, pendidikan (sekolah per desa), literasi, atau infrastruktur (listrik/air/internet). Ini murni gap data, bukan berarti kondisinya buruk — harus digali sendiri.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="rekomendasi">
+    <h2>💡 Arah Program (bukan resep siap pakai — tetap wajib lewat siklus PAR)</h2>
+    <div class="callout warn">Sesuai Panduan KKN 2026, program <b>tidak boleh</b> ditentukan sebelum tahap To Know & To Understand selesai bersama warga. Bagian ini adalah <i>hipotesis awal</i> berbasis data sekunder untuk bahan diskusi kelompok — bukan keputusan final.</div>
+    <div class="grid cols-2">
+      <div class="card">
+        <b>Hipotesis A — Gizi & Kesehatan Ibu-Anak</b>
+        <ul>
+          <li>Masalah yang mau digali: apakah isu gizi kurang 2023 masih berlanjut, dan apa akar penyebabnya (bukan asumsi pola makan semata).</li>
+          <li>Mitra potensial: Bidan Desa, kader Posyandu (5 posyandu), Puskesmas Sidamulya.</li>
+          <li>Cara mulai: FGD dengan kader posyandu di tahap To Know, bukan langsung bikin program penyuluhan.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <b>Hipotesis B — Ekonomi Rumah Tangga di Lahan Terbatas</b>
+        <ul>
+          <li>Masalah yang mau digali: dengan luas desa hanya 1,32 km², apa sumber penghidupan utama warga saat ini?</li>
+          <li>Mitra potensial: Kelompok Wanita Tani (jika masih aktif), Karang Taruna, pelaku UMKM.</li>
+          <li>🟡 Perlu Validasi: apakah kelembagaan yang tercatat di 2022 masih berjalan.</li>
+        </ul>
+      </div>
+    </div>
+    <h3>⭐ Quick win (bisa mulai cepat sambil proses PAR jalan)</h3>
+    <ul>
+      <li>Pemetaan ulang kelembagaan desa yang sudah ada (posyandu, KWT, karang taruna) — murah, cepat, jadi modal data To Know.</li>
+      <li>Form pendataan awal (maks. 10 pertanyaan, sesuai standar panduan) untuk profil rumah tangga dasar.</li>
+    </ul>
+    <h3>🚀 Berpotensi dampak besar (butuh validasi dulu sebelum dieksekusi)</h3>
+    <ul>
+      <li>Program gizi/posyandu berkelanjutan — jika hasil To Know mengonfirmasi masalah masih ada.</li>
+      <li>Penguatan kelompok usaha/tani perempuan — jika kelembagaan 2022 masih aktif dan warga menginginkannya.</li>
+    </ul>
+  </section>
+
+  <section id="gform">
+    <h2>📱 Google Form "To Know" — Data Warga Sidamulya</h2>
+    <p style="font-size:13.5px; color:var(--muted);">Sesuai 5 prinsip form di PPT (Blok 3): maks 10 pertanyaan, bahasa sederhana, jawaban terstruktur agar mudah dipantau di Tab Respons/Spreadsheet, dan 1 pertanyaan terbuka wajib di akhir.</p>
+    <table>
+      <tr><th>#</th><th>Pertanyaan</th><th>Tipe</th><th>Pilihan Jawaban</th></tr>
+      <tr><td>1</td><td>Bapak/Ibu tinggal di dusun/blok mana?</td><td>Pilihan ganda</td><td>Maja 1 / Maja 2 / Kiwiyar / Kiliyem-Kiganung</td></tr>
+      <tr><td>2</td><td>Apa pekerjaan utama di keluarga Bapak/Ibu?</td><td>Pilihan ganda</td><td>Tani/Ternak / Buruh / Dagang atau UMKM / Karyawan-Pegawai / Nelayan / Lainnya</td></tr>
+      <tr><td>3</td><td>Apakah di rumah ada anak usia 0–5 tahun (balita)?</td><td>Ya/Tidak</td><td>—</td></tr>
+      <tr><td>4</td><td>(Jika ya) Berapa bulan sekali balita dibawa ke Posyandu?</td><td>Pilihan ganda</td><td>Rutin tiap bulan / Kadang-kadang / Hampir tidak pernah</td></tr>
+      <tr><td>5</td><td>Sumber air minum sehari-hari keluarga?</td><td>Pilihan ganda</td><td>PDAM / Sumur sendiri / Sumur bersama-tetangga / Air isi ulang / Lainnya</td></tr>
+      <tr><td>6</td><td>Apakah rumah sudah punya WC/jamban sendiri?</td><td>Pilihan ganda</td><td>Sudah / Belum, masih numpang / Belum sama sekali</td></tr>
+      <tr><td>7</td><td>Apakah keluarga punya usaha (dagang/tani/ternak/produksi rumahan)?</td><td>Ya/Tidak + isian singkat jenis usaha</td><td>—</td></tr>
+      <tr><td>8</td><td>Apa kesulitan terbesar sehari-hari saat ini?</td><td>Pilihan ganda (pilih 1)</td><td>Ekonomi / Kesehatan keluarga / Pendidikan anak / Akses air bersih / Lainnya</td></tr>
+      <tr><td>9</td><td>Apakah Bapak/Ibu ikut kegiatan kelompok di desa?</td><td>Kotak centang (boleh &gt;1)</td><td>PKK / Posyandu / Kelompok Tani-Ternak / Karang Taruna / Pengajian / Tidak ikut apa pun</td></tr>
+      <tr><td>10</td><td><b>(Wajib, terbuka)</b> Apa yang Bapak/Ibu ingin ubah di desa ini, atau dalam kehidupan Bapak/Ibu, dalam 1 tahun ke depan?</td><td>Isian panjang</td><td>—</td></tr>
+    </table>
+    <div class="callout">Simpan template ini — dipakai lagi untuk form evaluasi di akhir KKN dengan pertanyaan cermin ("apa yang sudah berubah?") agar data awal vs akhir bisa dibandingkan, sesuai prinsip ke-5 di PPT.</div>
+  </section>
+
+  <section id="wawancara">
+    <h2>🎙️ Pelengkap Kualitatif — Wawancara/FGD Tokoh Kunci</h2>
+    <p style="font-size:13.5px; color:var(--muted);">Bukan bagian dari Gform (tidak untuk skala massal), tapi tetap dijalankan paralel di tahap To Know — menangkap hal yang tak bisa direkam form tertutup.</p>
+    <div class="grid cols-3">
+      <div class="card"><b>Kuwu / Sekdes / Perangkat Desa</b><ul><li>Masalah paling mendesak di desa saat ini?</li><li>Program pemerintah desa yang sedang berjalan?</li><li>Kelompok mana yang paling butuh perhatian mahasiswa KKN?</li><li>Apa yang diharapkan berubah dalam 1 tahun ke depan?</li></ul></div>
+      <div class="card"><b>Bidan Desa / Kader Posyandu</b><ul><li>Kondisi gizi balita terkini di desa ini?</li><li>Dusun mana paling banyak kasus gizi kurang?</li><li>Kendala warga untuk rutin ke posyandu?</li></ul></div>
+      <div class="card"><b>BPD</b><ul><li>Aspirasi warga yang paling sering muncul di forum BPD?</li><li>Ada konflik/perbedaan pandangan yang perlu diketahui?</li></ul></div>
+      <div class="card"><b>PKK</b><ul><li>Kegiatan PKK paling aktif saat ini?</li><li>Kesulitan sehari-hari ibu-ibu di desa ini?</li><li>Keterampilan apa yang paling ingin dipelajari?</li></ul></div>
+      <div class="card"><b>Karang Taruna</b><ul><li>Kegiatan pemuda yang berjalan saat ini?</li><li>Tantangan utama anak muda (kerja/pendidikan/keterampilan)?</li></ul></div>
+      <div class="card"><b>Kelompok Tani/Ternak (cek status "Sida Kencana")</b><ul><li>Masih aktif berkumpul? Sejak kapan terakhir ada kegiatan?</li><li>Kendala terbesar usaha tani/ternak sekarang?</li></ul></div>
+      <div class="card"><b>Pelaku UMKM</b><ul><li>Usaha apa, sudah berapa lama?</li><li>Cara memasarkan produk selama ini?</li><li>Pernah dapat pelatihan/bantuan usaha?</li></ul></div>
+      <div class="card"><b>Guru / Kepala Sekolah</b><ul><li>Kondisi belajar anak-anak secara umum?</li><li>Ada kaitan isu kesehatan/gizi siswa yang guru amati?</li></ul></div>
+      <div class="card"><b>Tokoh Agama & Tokoh Masyarakat</b><ul><li>Fungsi sosial masjid/mushola dalam keseharian warga?</li><li>Perubahan paling terasa dalam beberapa tahun terakhir?</li><li>Kelompok warga mana yang sering terlewat program bantuan?</li></ul></div>
+    </div>
+  </section>
+
+  <section id="peta-hasil">
+    <h2>🔀 Peta Rekomendasi — Berdasarkan Pola Jawaban Gform</h2>
+    <div class="callout warn">Ini bukan keputusan proker final — cara baca hasil form sebelum dibawa ke musyawarah Action Plan bersama warga.</div>
+    <table>
+      <tr><th>Pola Jawaban di Spreadsheet</th><th>Indikasi</th><th>Arah Program</th></tr>
+      <tr><td>Q4 mayoritas "hampir tidak pernah" ke posyandu</td><td>Cakupan pemantauan gizi rendah → risiko stunting nyata</td><td>Pendampingan posyandu + jemput bola balita non-rutin</td></tr>
+      <tr><td>Q4 mayoritas "rutin", tapi Q10 banyak menyebut kesehatan anak</td><td>Cakupan baik, kualitas/kepuasan layanan yang jadi masalah</td><td>Edukasi gizi & variasi menu, bukan cakupan kunjungan</td></tr>
+      <tr><td>Q5–Q6 banyak "numpang/belum" & "sumur bersama"</td><td>Akar masalah di air bersih/sanitasi, bukan cuma pola makan</td><td>Prioritaskan sanitasi/air bersih — sering jadi akar gizi tersembunyi</td></tr>
+      <tr><td>Q2 dominan "Buruh"/"Karyawan"</td><td>Ekonomi bergantung kerja di luar desa</td><td>Literasi finansial/menabung, bukan program pertanian</td></tr>
+      <tr><td>Q2 dominan "Dagang/UMKM"</td><td>Ekonomi rumahan jadi tumpuan</td><td>Pemasaran digital sederhana (Google Maps UMKM), pencatatan usaha</td></tr>
+      <tr><td>Q7 banyak "Ya" usaha tani/ternak meski lahan sempit</td><td>Pertanian skala kecil/pekarangan masih relevan</td><td>Pekarangan pangan/vertikultur, bukan lahan luas</td></tr>
+      <tr><td>Q8 mayoritas "Ekonomi"</td><td>Ekonomi jadi keluhan nomor 1</td><td>Prioritaskan program ekonomi meski data BPS menyorot gizi</td></tr>
+      <tr><td>Q8 mayoritas "Kesehatan keluarga"</td><td>Konsisten dengan riwayat stunting 2022 & data BPS</td><td>Prioritaskan program kesehatan/gizi sesuai hipotesis awal</td></tr>
+      <tr><td>Q9 banyak "Tidak ikut kegiatan apa pun"</td><td>Partisipasi sosial rendah, kelembagaan mungkin melemah</td><td>Perkuat partisipasi/kelembagaan dulu sebelum program teknis</td></tr>
+      <tr><td>Q9 banyak centang di satu kelompok tertentu</td><td>Kelompok itu masih jadi simpul sosial aktif</td><td>Jadikan kelompok itu mitra utama pelaksanaan program</td></tr>
+      <tr><td>Q10 sangat beragam, tidak ada pola dominan</td><td>Kebutuhan warga tersebar</td><td>Beberapa program kecil paralel, bukan satu program besar</td></tr>
+      <tr><td>Q10 banyak menyebut hal yang sama berulang</td><td>Ada satu isu yang benar-benar dirasakan bersama</td><td>Jadikan prioritas utama Action Plan — ini "emas data" sesuai istilah PPT</td></tr>
+    </table>
+  </section>
+
+  <section id="literasi">
+    <h2>📚 Rekomendasi Proker — Penguatan Literasi</h2>
+    <div class="callout warn">🟡 Catatan jujur: isi "Blok 5 — Pendalaman Tematik" di PPT yang di-upload tidak memuat teks, sehingga tema "Penguatan Literasi" belum bisa dikonfirmasi langsung dari file ini. Bagian ini disusun dengan asumsi tema tersebut benar sesuai arahan kampus/DPL — tetap dipetakan ke data & kemungkinan hasil Gform, bukan materi generik.</div>
+    <table>
+      <tr><th>Jenis Literasi</th><th>Dipicu oleh</th><th>Proker</th></tr>
+      <tr><td><b>Kesehatan/Gizi</b></td><td>Q4 banyak "jarang ke posyandu" dan/atau Q8 dominan "Kesehatan keluarga"</td><td>Penyuluhan gizi ibu balita + pendampingan rutin kader posyandu, materi dari isu nyata hasil FGD bidan desa</td></tr>
+      <tr><td><b>Baca-Tulis Anak</b></td><td>Guru/Kepsek sebut anak kesulitan membaca; atau Q10 banyak soal pendidikan anak</td><td>Pojok baca/taman baca di posyandu/balai dusun + mendongeng rutin, materi sesuai usia SD</td></tr>
+      <tr><td><b>Digital</b></td><td>Q9 banyak "tidak ikut kegiatan apa pun"; atau pelaku UMKM belum pakai HP untuk usaha</td><td>Pelatihan dasar HP untuk info desa (grup WA RT/RW) + daftar UMKM di Google Maps bagi yang Q7 "Ya usaha"</td></tr>
+      <tr><td><b>Finansial</b></td><td>Q2 dominan "Buruh/Karyawan" atau Q8 dominan "Ekonomi"</td><td>Kelas dasar catat pemasukan-pengeluaran rumah tangga + kenalan produk menabung, sasaran ibu PKK</td></tr>
+      <tr><td><b>Lingkungan</b></td><td>Q5/Q6 banyak masalah air bersih/jamban</td><td>Edukasi PHBS (cuci tangan, sampah, air bersih) untuk anak SD & ibu rumah tangga — nyambung ke isu gizi</td></tr>
+      <tr><td><b>Hukum/Kespro Remaja</b></td><td>Masih ada isu pernikahan dini/stunting remaja (riwayat 2022)</td><td>Penyuluhan kespro & dampak pernikahan dini ke SMP/SMA — lanjutan tema yang pernah ada di Sidamulya</td></tr>
+    </table>
+    <div class="callout">Prinsip pemilihan (ikut PAR): jangan jalankan semua sekaligus. Pilih 1–2 jenis literasi yang paling didukung data Gform + FGD tokoh — sesuai prinsip "satu tema, satu desa, satu dampak terukur" dari panduan.</div>
+  </section>
+
+  <section id="checklist">
+    <h2>📋 Checklist Survey (To Know)</h2>
+    <div class="grid cols-3">
+      <div class="card"><b>Balai Desa</b><ul><li>Data terbaru: jumlah penduduk, KK, dusun/RW/RT</li><li>Profil desa/monografi/RPJMDes terbaru</li><li>Program pemerintah desa berjalan</li></ul></div>
+      <div class="card"><b>Posyandu (5 titik)</b><ul><li>Data gizi terkini per posyandu</li><li>Jumlah balita ditimbang & status gizi</li><li>Apakah kader masih sama seperti 2022</li></ul></div>
+      <div class="card"><b>Kelompok Tani/Ternak/KWT</b><ul><li>Status "Sida Kencana" — masih aktif?</li><li>Jenis usaha tani/ternak saat ini</li><li>Kendala utama saat ini</li></ul></div>
+      <div class="card"><b>Sekolah</b><ul><li>Jumlah & jenis sekolah di desa (tidak ada di data BPS per-desa)</li><li>Isu pendidikan yang dirasakan guru/ortu</li></ul></div>
+      <div class="card"><b>UMKM</b><ul><li>Jenis usaha yang ada</li><li>Status program "Kake Fatmala" (kelor)</li></ul></div>
+      <div class="card"><b>Tokoh Masyarakat/Agama</b><ul><li>Fungsi 2 masjid & 6 mushola dalam kehidupan sosial</li><li>Isu sosial yang dirasakan</li></ul></div>
+    </div>
+  </section>
+
+  <section id="gap">
+    <h2>🚩 Data yang Belum Ada</h2>
+    <table>
+      <tr><th>Data</th><th>Kenapa penting</th><th>Cara dapatkan</th></tr>
+      <tr><td>Status gizi/stunting terkini (2025–2026)</td><td>Data BPS terbaru (2023) sudah lawas untuk isu yang bergerak cepat</td><td>Puskesmas/Bidan Desa/Posyandu langsung</td></tr>
+      <tr><td>Mata pencaharian dominan warga</td><td>Tidak ada di BPS Kecamatan Dalam Angka level desa</td><td>Wawancara & observasi tahap To Know</td></tr>
+      <tr><td>Status kelembagaan 2022 (KWT, kelompok ternak)</td><td>Menentukan apakah bisa jadi mitra langsung</td><td>Kunjungan ke Kepala Desa & tokoh terkait</td></tr>
+      <tr><td>Kondisi infrastruktur (air, listrik, jalan, internet)</td><td>Tidak tercakup di 3 buku BPS ini</td><td>Observasi lapangan + Podes terbaru (jika ada)</td></tr>
+      <tr><td>Isi Blok 5 (Pendalaman Tematik) panduan KKN</td><td>Mungkin memuat tema wajib/3 pertanyaan kunci PAR</td><td>Tanyakan ke DPL/Koordinator DPL/LP2M</td></tr>
+    </table>
+  </section>
+
+  <section id="rapat">
+    <h2>📝 Saran untuk Rapat Kelompok</h2>
+    <div class="grid cols-2">
+      <div class="card">
+        <b>Bahas di rapat internal</b>
+        <ul>
+          <li>Pembagian peran fasilitator To Know (siapa pegang observasi, wawancara, FGD)</li>
+          <li>Draft form pendataan (maks 10 pertanyaan + 1 pertanyaan terbuka wajib)</li>
+          <li>Rencana pemondokan terpisah gender — cek sebelum 13 Juli</li>
+        </ul>
+      </div>
+      <div class="card">
+        <b>Konfirmasi ke DPL / Pemdes</b>
+        <ul>
+          <li>Ke DPL: isi Blok 5 (tema pendalaman) & jadwal kunjungan lapangan DPL</li>
+          <li>Ke Pemdes: kondisi terkini gizi/posyandu, status kelembagaan 2022</li>
+          <li>Jadwal upacara penyerahan 13 Juli & titik pemondokan</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="referensi">
+    <h2>📚 Referensi</h2>
+    <ul>
+      <li>BPS Kabupaten Cirebon — <i>Kecamatan Astanajapura Dalam Angka 2023, 2024, 2025</i></li>
+      <li>PPTX Pembekalan DPL KKN 2026 (metodologi PAR, etika, teknis pelaksanaan)</li>
+      <li>Artikel Kompasiana — laporan KKN-T IPB Kelompok 3 di Desa Sidamulya, 2022 (konteks historis, bukan data resmi terkini)</li>
+    </ul>
+    <footer>Dibuat sebagai bahan bantu pra-KKN. Semua angka bertanda 🟡 wajib dicek ulang di lapangan sebelum dijadikan dasar keputusan program.</footer>
+  </section>
+</main>
+</div>
 </body>
 </html>
